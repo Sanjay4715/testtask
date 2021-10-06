@@ -1,15 +1,21 @@
 import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
 import { Button } from "@progress/kendo-react-buttons";
 import { Input } from "@progress/kendo-react-inputs";
 import { DropDownList } from "@progress/kendo-react-dropdowns";
 import { Label, Error, Hint } from "@progress/kendo-react-labels";
 import { DatePicker } from "@progress/kendo-react-dateinputs";
+import { v4 as uuidv4 } from "uuid";
+
+import Axios from "axios";
+import { url } from "../../Config/config";
 
 class CustomForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
       data: {
+        id: uuidv4(),
         fullName: "",
         gender: "",
         dob: new Date(),
@@ -48,8 +54,8 @@ class CustomForm extends Component {
     });
   };
 
-  checkError = () => {
-    let usernameError = "";
+  checkError = (username) => {
+    let usernameError = username ? username : "";
     let emailError = "";
     let mobileNumberError = "";
     let fullNameError = "";
@@ -165,11 +171,26 @@ class CustomForm extends Component {
     return { isExistUpper, isExistLower, isExistNumber, isExistSpecial };
   };
 
-  handleSubmit = (e) => {
+  handleSubmit = async (e) => {
     e.preventDefault();
-    let errorStatus = this.checkError();
-    if (errorStatus === false) {
-      console.log(this.state.data);
+    try {
+      const isExistResponse = await Axios.get(`${url}/users`, {
+        params: { username: this.state.data.username },
+      });
+      let errorStatus = "";
+      if (isExistResponse.data.length !== 0) {
+        errorStatus = this.checkError("Username already exists");
+      } else {
+        errorStatus = this.checkError();
+        if (errorStatus === false) {
+          const response = await Axios.post(`${url}/users`, this.state.data);
+          if (response.data.id) {
+            this.props.history.push("/login");
+          }
+        }
+      }
+    } catch (error) {
+      console.clear();
     }
   };
 
@@ -183,6 +204,9 @@ class CustomForm extends Component {
             paddingLeft: 35,
             paddingRight: 35,
             paddingTop: 15,
+            paddingBottom: 10,
+            border: `2px solid #181818`,
+            borderRadius: 5,
           }}
         >
           <div style={{ width: "100%", display: "flex", flexDirection: "row" }}>
@@ -198,7 +222,7 @@ class CustomForm extends Component {
                 editorValid={
                   this.state.error.fullNameError !== "" ? false : true
                 }
-                style={{ fontSize: 19 }}
+                style={{ fontSize: 18 }}
               >
                 Full Name
               </Label>
@@ -238,7 +262,7 @@ class CustomForm extends Component {
                 marginRight: 10,
               }}
             >
-              <Label style={{ fontSize: 19 }}>Gender</Label>
+              <Label style={{ fontSize: 18 }}>Gender</Label>
               <DropDownList
                 id="gender"
                 name="gender"
@@ -258,7 +282,7 @@ class CustomForm extends Component {
                 marginRight: 10,
               }}
             >
-              <Label style={{ fontSize: 19 }}>Date Of Birth</Label>
+              <Label style={{ fontSize: 18 }}>Date Of Birth</Label>
               <DatePicker
                 id="dob"
                 name="dob"
@@ -281,7 +305,7 @@ class CustomForm extends Component {
             >
               <Label
                 editorValid={this.state.error.emailError !== "" ? false : true}
-                style={{ fontSize: 19 }}
+                style={{ fontSize: 18 }}
               >
                 Email Address
               </Label>
@@ -327,7 +351,7 @@ class CustomForm extends Component {
                 editorValid={
                   this.state.error.mobileNumberError !== "" ? false : true
                 }
-                style={{ fontSize: 19 }}
+                style={{ fontSize: 18 }}
               >
                 Mobile Number
               </Label>
@@ -364,7 +388,7 @@ class CustomForm extends Component {
           <div style={{ display: "flex", flexDirection: "column" }}>
             <Label
               editorValid={this.state.error.usernameError !== "" ? false : true}
-              style={{ fontSize: 19 }}
+              style={{ fontSize: 18 }}
             >
               Username
             </Label>
@@ -414,7 +438,7 @@ class CustomForm extends Component {
                 editorValid={
                   this.state.error.passwordError !== "" ? false : true
                 }
-                style={{ fontSize: 19 }}
+                style={{ fontSize: 18 }}
               >
                 Password
               </Label>
@@ -438,10 +462,15 @@ class CustomForm extends Component {
                 value={this.state.data.password}
               />
               <div>
-                {this.state.error.passwordError && (
+                {this.state.error.passwordError ? (
                   <Error id={this.state.error.passwordError}>
                     {this.state.error.passwordError}
                   </Error>
+                ) : (
+                  <Hint id="email">
+                    Password must contain one uppercase, one digit and one
+                    special character
+                  </Hint>
                 )}
               </div>
             </div>
@@ -458,7 +487,7 @@ class CustomForm extends Component {
                 editorValid={
                   this.state.error.confirmPasswordError !== "" ? false : true
                 }
-                style={{ fontSize: 19 }}
+                style={{ fontSize: 18 }}
               >
                 Confirm Password
               </Label>
@@ -483,10 +512,15 @@ class CustomForm extends Component {
                 value={this.state.data.confirmPassword}
               />
               <div>
-                {this.state.error.confirmPasswordError && (
+                {this.state.error.confirmPasswordError ? (
                   <Error id={this.state.error.confirmPasswordError}>
                     {this.state.error.confirmPasswordError}
                   </Error>
+                ) : (
+                  <Hint id="email">
+                    Password must contain one uppercase, one digit and one
+                    special character
+                  </Hint>
                 )}
               </div>
             </div>
@@ -496,10 +530,13 @@ class CustomForm extends Component {
           <Button type="submit" primary={true}>
             Submit
           </Button>
+          <a href="/login" style={{ marginLeft: 15 }}>
+            Login
+          </a>
         </form>
       </div>
     );
   }
 }
 
-export default CustomForm;
+export default withRouter(CustomForm);

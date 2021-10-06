@@ -1,0 +1,15 @@
+{
+  "users": [
+    {
+      "id": "19f8dd00-08bd-4ade-b0ff-9ae9ca550e9f",
+      "fullName": "Sanjaya Rai",
+      "gender": "Male",
+      "dob": "2021-10-06T11:57:04.596Z",
+      "email": "sonjrai@gmail.com",
+      "mobileNumber": "9860133967",
+      "username": "Admin@123",
+      "password": "Admin@123",
+      "confirmPassword": "Admin@123"
+    }
+  ]
+}

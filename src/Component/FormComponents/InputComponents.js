@@ -16,7 +16,6 @@ export const FormInput = (fieldRenderProps) => {
     optional,
     ...others
   } = fieldRenderProps;
-  console.log(fieldRenderProps);
 
   const showValidationMessage = touched && validationMessage;
   const showHint = !showValidationMessage && hint;
