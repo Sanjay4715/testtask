@@ -16,6 +16,7 @@ export const FormInput = (fieldRenderProps) => {
     optional,
     ...others
   } = fieldRenderProps;
+  console.log(fieldRenderProps);
 
   const showValidationMessage = touched && validationMessage;
   const showHint = !showValidationMessage && hint;
@@ -42,6 +43,7 @@ export const FormInput = (fieldRenderProps) => {
           ariaDescribedBy={`${hintId} ${errorId}`}
           {...others}
           style={{ height: 40, borderWidth: 2, borderRadius: 5, fontSize: 14 }}
+          //   onChange={}
         />
         {showHint && <Hint id={hintId}>{hint}</Hint>}
         {showValidationMessage && (
@@ -67,7 +69,6 @@ export const FormMaskedTextBox = (fieldRenderProps) => {
   const showHint = !showValidationMessage && hint;
   const hintId = showHint ? `${id}_hint` : "";
   const errorId = showValidationMessage ? `${id}_error` : "";
-  console.log(fieldRenderProps);
   return (
     <FieldWrapper>
       <Label
